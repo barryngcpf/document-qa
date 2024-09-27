@@ -1,5 +1,10 @@
 import streamlit as st
 from openai import OpenAI
+import os, time
+from typing import Self
+from dotenv import load_dotenv
+from pathlib import Path
+from PyPDF2 import PdfReader
 
 # Show title and description.
 st.title("📄 Document question answering")
@@ -7,7 +12,16 @@ st.write(
     "Upload a document below and ask a question about it – GPT will answer! "
     "To use this app, you need to provide an OpenAI API key, which you can get [here](https://platform.openai.com/account/api-keys). "
 )
-
+#Uploading the PDF Files:
+with st.sidebar:
+    st.title("Menu:📋")
+    pdf_docs = st.file_uploader("Upload your PDF Files and Click on the Submit & Process Button", accept_multiple_files=True)
+    if st.button("Submit & Process"):
+        with st.spinner("Processing..."):
+            raw_text = get_pdf_text(pdf_docs)
+            text_chunks = get_text_chunks(raw_text)
+            get_vector_store(text_chunks)
+            st.success("Done")
 # Ask user for their OpenAI API key via `st.text_input`.
 # Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
 # via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
